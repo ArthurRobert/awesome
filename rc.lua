@@ -1,17 +1,26 @@
 -- Standard awesome library
-
 local gears = require("gears")
 local awful = require("awful")
 awful.rules = require("awful.rules")
 require("awful.autofocus")
+
 -- Widget and layout library
 local wibox = require("wibox")
+
 -- Theme handling library
 local beautiful = require("beautiful")
+
 -- Notification library
 local naughty = require("naughty")
 local menubar = require("menubar")
 local vicious = require("vicious")
+local net_widgets = require("net_widgets")
+local volume = require("volume")
+
+local orglendar = require("orglendar")
+--orglendar.files = { "~/org/work.org" }
+orglendar.files = { "/home/arthur/org/work.org" }
+
 -- {{{ Error handling
 -- Check if awesome encountered an error during startup and fell back to
 -- another config (This code will only ever execute for the fallback config)
@@ -39,7 +48,7 @@ end
 
 -- {{{ Variable definitions
 -- Themes define colours, icons, and wallpapers
-beautiful.init("/usr/share/awesome/themes/zenburn/theme.lua")
+beautiful.init("~/.config/awesome/themes/zenburn/theme.lua")
 --beautiful.init("/usr/share/awesome/awesome/themes/zenburn/theme.lua")
 
 -- This is used later as the default terminal and editor to run.
@@ -53,7 +62,6 @@ editor_cmd = terminal .. " -e " .. editor
 -- I suggest you to remap Mod4 to another key using xmodmap or other tools.
 -- However, you can use another modifier like Mod1, but it may interact with others.
 modkey = "Mod4"
-
 -- Table of layouts to cover with awful.layout.inc, order matters.
 local layouts =
 {
@@ -88,6 +96,16 @@ for s = 1, screen.count() do
     tags[s] = awful.tag({01, 02, 03, 05, 08, 13, 21}, s, layouts[2])
 end
 -- }}}
+
+
+client.add_signal("focus", function(c)
+                              c.border_color = beautiful.border_focus
+                              c.opacity = 1
+                           end)
+client.add_signal("unfocus", function(c)
+                                c.border_color = beautiful.border_normal
+                                c.opacity = 0.5
+                             end)
 
 
 
@@ -227,6 +245,7 @@ menubar.utils.terminal = terminal -- Set the terminal for applications that requ
 -- {{{ Wibox
 -- Create a textclock widget
 mytextclock = awful.widget.textclock()
+orglendar.register(mytextclock)
 
 
 -- Keyboard map indicator and changer
@@ -243,19 +262,21 @@ kbdcfg.switch = function ()
    os.execute( kbdcfg.cmd .. " " .. t[1] .. " " .. t[2] )
 end
 
---Battery
-batterywidget = wibox.widget.textbox()    
-batterywidget:set_text(" | Battery | ")    
-batterywidgettimer = timer({ timeout = 5 })    
-batterywidgettimer:connect_signal("timeout",    
-				  function()    
-				     fh = assert(io.popen("acpi | cut -d, -f 2,3 -", "r"))    
-				     batterywidget:set_text(" |Batt:" .. fh:read("*l") .. " | ")    
-				     fh:close()    
-  end    
-)    
+screenTimer = timer({ timeout = 5})
+screenTimer:connect_signal("timeout", 
+				function()
+				  io.popen("sh /home/arthur/test.sh")
+				end
+				)
 
-batterywidgettimer:start()
+screenTimer:start()
+
+--Separator
+sepWidget = wibox.widget.textbox()
+sepWidget:set_text(" | ")
+
+--Net widget
+net_wireless = net_widgets.wireless({interface="wlp6s0", timeout = 1})
 
 
 --Processor
@@ -277,7 +298,7 @@ vicious.register(cpugrwidget, vicious.widgets.cpu, "$1")
 -- Initialize widget
 memwidget = wibox.widget.textbox()
 -- Register widget
-vicious.register(memwidget, vicious.widgets.mem, "MEM: $1% | ", 10)
+vicious.register(memwidget, vicious.widgets.mem, "MEM: $1%", 10)
 
 
 -- Mouse bindings
@@ -365,10 +386,15 @@ for s = 1, screen.count() do
     local right_layout = wibox.layout.fixed.horizontal()
     if s == 1 then right_layout:add(wibox.widget.systray()) end
     -- Add widget to your layout
+    right_layout:add(net_wireless)
+    right_layout:add(sepWidget)
+    right_layout:add(volumewidget)
+    right_layout:add(sepWidget)
     right_layout:add(memwidget)
+    right_layout:add(sepWidget)
     right_layout:add(cpuwidget)
     right_layout:add(cpugrwidget)
-    right_layout:add(batterywidget)
+    right_layout:add(sepWidget)
     right_layout:add(kbdcfg.widget)
     right_layout:add(mytextclock)
     right_layout:add(mylayoutbox[s])
@@ -449,6 +475,15 @@ globalkeys = awful.util.table.join(
                   awful.util.eval, nil,
                   awful.util.getdir("cache") .. "/history_eval")
               end),
+
+    -- Volume
+    awful.key({ }, "XF86AudioRaiseVolume", function ()
+		 awful.util.spawn("amixer set Master 9%+") end),
+    awful.key({ }, "XF86AudioLowerVolume", function ()
+		 awful.util.spawn("amixer set Master 9%-") end),
+    awful.key({ }, "XF86AudioMute", function ()
+		 awful.util.spawn("amixer sset Master toggle") end),
+    
     -- Menubar
     awful.key({ modkey }, "p", function() menubar.show() end)
 )
