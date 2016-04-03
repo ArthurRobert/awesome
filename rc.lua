@@ -16,10 +16,13 @@ local menubar = require("menubar")
 local vicious = require("vicious")
 local net_widgets = require("net_widgets")
 local volume = require("volume")
+local cpuwidget = require("cpuwidget")
 
 local orglendar = require("orglendar")
 --orglendar.files = { "~/org/work.org" }
 orglendar.files = { "/home/arthur/org/work.org" }
+
+
 
 -- {{{ Error handling
 -- Check if awesome encountered an error during startup and fell back to
@@ -278,22 +281,6 @@ sepWidget:set_text(" | ")
 --Net widget
 net_wireless = net_widgets.wireless({interface="wlp6s0", timeout = 1})
 
-
---Processor
--- Initialize widget
-cpuwidget = wibox.widget.textbox()
-cpuwidget:set_text("CPU: ")
-cpugrwidget = awful.widget.graph()
--- Register widget
-
--- Graph properties
-cpugrwidget:set_width(50)
-cpugrwidget:set_background_color("#494B4F")
-cpugrwidget:set_color({ type = "linear", from = { 0, 0 }, to = { 10,0 }, stops = { {0, "#FF5656"}, {0.5, "#88A175"}, 
-										 {1, "#AECF96" }}})
--- Register widget
-vicious.register(cpugrwidget, vicious.widgets.cpu, "$1")
-
 --Memory usage
 -- Initialize widget
 memwidget = wibox.widget.textbox()
@@ -393,7 +380,6 @@ for s = 1, screen.count() do
     right_layout:add(memwidget)
     right_layout:add(sepWidget)
     right_layout:add(cpuwidget)
-    right_layout:add(cpugrwidget)
     right_layout:add(sepWidget)
     right_layout:add(kbdcfg.widget)
     right_layout:add(mytextclock)
