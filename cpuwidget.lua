@@ -7,6 +7,8 @@ local vicious = require("vicious")
 
 function initWidget(widget)
    -- Initialize widget 
+   local font = beautiful.font
+
    local cputext = wibox.widget.textbox()
    cputext:set_text("CPU: ")
 

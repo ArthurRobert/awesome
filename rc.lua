@@ -9,6 +9,8 @@ local wibox = require("wibox")
 
 -- Theme handling library
 local beautiful = require("beautiful")
+-- Themes define colours, icons, and wallpapers
+beautiful.init("~/.config/awesome/themes/zenburn/theme.lua")
 
 -- Notification library
 local naughty = require("naughty")
@@ -16,6 +18,7 @@ local menubar = require("menubar")
 local vicious = require("vicious")
 local net_widgets = require("net_widgets")
 local volume = require("volume")
+
 local cpuwidget = require("cpuwidget")
 
 local orglendar = require("orglendar")
@@ -50,9 +53,6 @@ end
 -- }}}
 
 -- {{{ Variable definitions
--- Themes define colours, icons, and wallpapers
-beautiful.init("~/.config/awesome/themes/zenburn/theme.lua")
---beautiful.init("/usr/share/awesome/awesome/themes/zenburn/theme.lua")
 
 -- This is used later as the default terminal and editor to run.
 terminal = "urxvt"
@@ -286,7 +286,6 @@ net_wireless = net_widgets.wireless({interface="wlp6s0", timeout = 1})
 memwidget = wibox.widget.textbox()
 -- Register widget
 vicious.register(memwidget, vicious.widgets.mem, "MEM: $1%", 10)
-
 
 -- Mouse bindings
 kbdcfg.widget:buttons(
